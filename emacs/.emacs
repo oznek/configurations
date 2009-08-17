@@ -86,7 +86,7 @@
 
 ;; Color Theme
 (load-library "color-theme")
-(color-theme-calm-forest)
+(color-theme-charcoal-black)
 
 ;; Errr.. can't remember
 (put 'scroll-left 'disabled nil)
