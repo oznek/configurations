@@ -114,7 +114,8 @@
 (setq auto-fill-mode 1)
 
 ;; Git
-(require 'git-emacs)
+(require 'git)
+(require 'git-blame)
 
 ;;; turn on syntax hilighting
 (global-font-lock-mode 1)
