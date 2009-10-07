@@ -726,6 +726,6 @@
   (setq major-mode 't2t-mode)
   (setq mode-name "T2T")
   (run-hooks 't2t-mode-hook))
-
+(setq indent-tab-mode 'tab)
 (provide 't2t-mode)
 

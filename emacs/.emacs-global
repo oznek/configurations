@@ -150,3 +150,46 @@
   (require 'auto-complete-semantic)
   ;; (require 'auto-complete-ruby) ;; problems with this plugin
   (global-auto-complete-mode t))
+
+;; Duplicate line (C-c C-d)
+(defun duplicate-line()
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (open-line 1)
+  (next-line 1)
+  (yank)
+)
+(global-set-key (kbd "C-c C-d") 'duplicate-line)
+
+
+;; Join lines
+;; -- define a new command to join multiple lines together --
+(defun join-lines () (interactive)
+ (setq fill-column 100000)
+ (fill-paragraph nil)
+ (setq fill-column 76)
+)
+(global-set-key (kbd "C-c C-j") 'join-lines)
+
+;; Wikipedia Mode
+;; http://en.wikipedia.org/wiki/Wikipedia:Wikipedia-mode.el
+(autoload 'wikipedia-mode "wikipedia-mode.el"
+"Major mode for editing documents in Wikipedia markup." t)
+
+(add-to-list 'auto-mode-alist
+'("\\.wiki\\'" . wikipedia-mode))
+
+;; To use with Firefox ViewSource Extension
+(add-to-list 'auto-mode-alist
+'("en\\.wikipedia\\.org" . wikipedia-mode))
+
+;; ItsAllText Firefox Extension usage
+(add-to-list 'auto-mode-alist
+'("itsalltext.*\\.txt$" . wikipedia-mode))
+
+;; long lines support
+(autoload 'longlines-mode "longlines.el"
+"Minor mode for editing long lines." t)
+
