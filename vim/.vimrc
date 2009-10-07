@@ -58,3 +58,8 @@ autocmd BufReadPost * :DetectIndent
 "autocmd BufReadPost * call Kees_settabs()
 
 colorscheme evening
+
+" FuzzyFinder
+" http://www.vim.org/scripts/script.php?script_id=1984
+" Use :FufBuffer, :FufFile, etc
+
