@@ -193,3 +193,5 @@
 (autoload 'longlines-mode "longlines.el"
 "Minor mode for editing long lines." t)
 
+;; ansi colors on shell
+(ansi-color-for-comint-mode-on)
