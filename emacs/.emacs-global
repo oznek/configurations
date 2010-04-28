@@ -104,9 +104,8 @@
 ;; via hooks.
 (setq auto-fill-mode 1)
 
-;; Git - please use magit
-;;(require 'git)
-;;(require 'git-blame)
+;; Git  
+(require 'magit)
 
 ;;; turn on syntax hilighting
 (global-font-lock-mode 1)
@@ -237,4 +236,9 @@
   )
 (add-hook 'c-mode-common-hook 'oznek/eassist-hook)
 
+;; Markdown mode support
+(autoload 'markdown-mode "markdown-mode.el"
+  "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist
+             '("\\.markdown$" . markdown-mode))
 
