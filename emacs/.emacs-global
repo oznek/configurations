@@ -104,9 +104,9 @@
 ;; via hooks.
 (setq auto-fill-mode 1)
 
-;; Git
-(require 'git)
-(require 'git-blame)
+;; Git - please use magit
+;;(require 'git)
+;;(require 'git-blame)
 
 ;;; turn on syntax hilighting
 (global-font-lock-mode 1)
@@ -194,4 +194,47 @@
 "Minor mode for editing long lines." t)
 
 ;; ansi colors on shell
-(ansi-color-for-comint-mode-on)
+(ansi-color-for-comint-mode-on) 
+
+;; confirm emacs quit
+(setq confirm-kill-emacs 'yes-or-no-p) 
+
+;; server mode (to use emacsclient)
+(server-start)
+
+;; change default indent to ellemtel in c/c++ (see c-style-alist for a list)
+(setq c-default-style (quote ((c-mode . "ellemtel") (c++-mode . "ellemtel") (java-mode . "java") (awk-mode . "awk") (other . "gnu"))))
+
+;; anti-aliased fonts
+(if (>= emacs-major-version 23)   (set-default-font "Monospace-10"))
+
+;; default font
+;; needs package xfonts-terminus
+(set-face-font 'default "-*-terminus-medium-r-*-*-*-140-75-75-*-*-iso8859-15")
+
+;; recentf stuff
+(require 'recentf)
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(global-set-key "\C-x\ \C-r" 'recentf-open-files)
+
+;; tab bar
+(require 'tabbar)
+(tabbar-mode 1)
+
+;; setup compile package
+;; TODO: allow to specify function as compile-command
+(require 'compile)
+(setq compilation-disable-input nil)
+(setq compilation-scroll-output t)
+(setq mode-compile-always-save-buffer-p t)
+
+(require 'eassist)
+(defun oznek/eassist-hook ()
+  (local-set-key "\C-ct" 'eassist-switch-h-cpp)
+  (local-set-key "\C-xt" 'eassist-switch-h-cpp)
+  (local-set-key "\C-ce" 'eassist-list-methods)
+  )
+(add-hook 'c-mode-common-hook 'oznek/eassist-hook)
+
+

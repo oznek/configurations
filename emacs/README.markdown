@@ -26,3 +26,14 @@ And create a copy of:
   * .emacs
 
 to your home directory.
+
+
+Requirements
+------------
+
+For Ubuntu/Debian, the following packages are required:
+  
+  * jde
+  * emacs-goodies-el
+  * pymacs
+  * python-ropemacs 
