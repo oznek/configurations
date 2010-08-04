@@ -33,7 +33,7 @@ augroup txt2tags
 augroup END
 
 " Font
-set guifont=Consolas\ 10
+set guifont=Liberation\ Mono\ 10
 
 " Tab WAR :-)
 set expandtab
