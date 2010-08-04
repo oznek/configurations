@@ -1,57 +1,53 @@
-;; Author: Leslie Harlley Watter
-
-
-;; HOWTO INSTALL
-
-;;
-;; PT_BR  ( english users look below :D )
-;;
-
-
-;; 1) Crie/Copie este arquivo (txt2tags-mode.el) para o diretório ~/emacs/txt2tags/.
-;; 2) Insira o seguinte código no final do seu ~/.emacs
-;; ------
-;; (add-to-list 'load-path "~/projetos/txt2tags/2.x/")
-;; (setq auto-mode-alist (append (list
-;; 	'("\\.t2t$" . t2t-mode)
-;; 	)
-;; 	(if (boundp 'auto-mode-alist) auto-mode-alist)
-;; ))
-;; (autoload  't2t-mode "txt2tags-mode" "Txt2tags Mode" t)
-;; -----
-;; E pronto, basta fechar e abrir novamente o emacs que ele irá carregar o txt2tags-mode automaticamente quando
-;; um arquivo .t2t for aberto ;-)
-
-
-
-;;
-;; EN_US
-;;
-
-;; To install txt2tags-mode you just need to do a few steps:
-;; 1) Copy this archieve (txt2tags-mode.el) to your ~/emacs/txt2tags directory. 
-;; (If you don't have such a directory, you can create one just to organize your things)
-;; 2) Add the following code to the end of your ~/.emacs
-;; ------
-;; (add-to-list 'load-path "~/projetos/txt2tags/2.x/")
-;; (setq auto-mode-alist (append (list
-;; 	'("\\.t2t$" . t2t-mode)
-;; 	)
-;; 	(if (boundp 'auto-mode-alist) auto-mode-alist)
-;; ))
-;; (autoload  't2t-mode "txt2tags-mode" "Txt2tags Mode" t)
-;; -----
-;; That's all. Close your emacs and reopen it. Emacs will parse and fontify all of .t2t files ;-)
-
-
-
-
 ;; TODO
 
 ;; Ajustar as regexps de tabelas
 ;; Ajustar a regexp da data para pegar %%date(%c) e variantes
-;; rewrite the entire documentation.
 
+
+
+;; Changelog
+
+;; 19/07/2004
+
+;; Melhorando as regexps de links 
+;; Agora as regiões de ``` também são marcadas
+
+;; 12/07/2004
+
+;; Adicionando a fonte raw para a marcação --- oneliner em um nível mais superior
+
+;; M-x compile agora tem a opção de target padrão. Coloquei o html, 
+;; mas é uma variável que pode ser mudada com o M-x customize-group t2t
+
+;; As listas agora voltam a funcionar - + : são identificadas.
+;; o problema estava na cor que eu atribuía às listas (blah).
+
+;; Seções numeradas agora sem ancoras também
+
+
+;; 10/07/2004
+
+;; Comando de "compilar" modificado.
+;; Agora quando precisar compilar o documento t2t aberto, é só executar 
+;; M-x compile
+
+;; Criadas as fontes section-{1,2,3,4,5}. Valeu Guaracy.
+
+;;  8/07/2004
+;;  Inserido o :group 'txt2tags-faces no final da definição das fontes. Isso permite 
+;;  que o M-x customize-group txt2tags possa definir as fontes do usuário sobrepondo a minha 
+;;  definição. Obrigado à sachac #emacs
+
+;; 3/10/2003
+;; Hoje eu consegui arrumar um problema com a regexp do negrito
+;; uma aspa faltando antes do nome da fonte tava dando erro
+;; a regesp do negrito tava errada
+
+;; http://two-wugs.net/emacs/mode-tutorial.html#fontlock
+
+;; Here, we define some variables that all modes should define. 
+;; t2t-mode-hook allows the user to run their own code when your mode is run.
+;; t2t-mode-map allows users to define their own keymaps.
 
 (defvar t2t-mode-hook nil)
 (defvar t2t-mode-map nil
@@ -59,8 +55,8 @@
 
 ;; Now we're assigining a default keymap, if the user hasn't already defined one.
 
-;; (if t2t-mode-map nil
-;;   (setq t2t-mode-map (make-keymap)))
+(if t2t-mode-map nil
+  (setq t2t-mode-map (make-keymap)))
 
 
 
@@ -165,7 +161,7 @@
   "Txt2Tags Images." :group 'txt2tags-faces)
 
 ;; negrito
-(defface t2t-bold-face '((t (:width extra-expanded :weight extra-bold :foreground "midnight blue" :background "black"))) 
+(defface t2t-bold-face '((t (:width extra-expanded :weight extra-bold :foreground "white" :background "black"))) 
   "Txt2Tags Bold." :group 'txt2tags-faces)
 
 ;; itálico
@@ -192,11 +188,6 @@
 (defface t2t-line-face '((t (:bold t :foreground "Blue2" :background "black"))) 
   "Txt2Tags line face." :group 'txt2tags-faces)
 
-;; Fonte para mostrar o final de linha em branco em vermelho
-
-(defface t2t-trailing-whitespace '((t (:bold t :foreground "Red" :background "black"))) 
-  "Txt2Tags line face." :group 'txt2tags-faces)
-
 ;; Here, we append a definition to auto-mode-alist.
 ;; This tells emacs that when a buffer with a name ending with .t2t is opened, 
 ;; then t2t-mode should be started in that buffer. Some modes leave this step to the user.
@@ -205,13 +196,6 @@
 	  (append
 	   '(("\\.t2t\\'" . t2t-mode))
 	   auto-mode-alist))
-
-
-;; self comment
-;;; Atenção !!! IMPORTANTE !!
-;; NAO esquecer a aspa simples antes do nome da fonte   '("^%%.*" . --->'<----t2t-comments-face)
-;; senão tem que declarar uma variável com o mesmo nome da fonte
-;; Veja o comentário ao final deste modo
 
 
 
@@ -389,310 +373,19 @@
       ()
     (setq t2t-mode-syntax-table (make-syntax-table))
 	
-	;; The first modification we make to the syntax table is to declare the 
-	;; underscore character '_' as being a valid part of a word. 
-	;; So now, a string like foo_bar will be treated as one word rather than two 
-	;; (the default Emacs behavior). 
-	
-	(modify-syntax-entry ?_ "w" t2t-mode-syntax-table))
-
-	;; %% inicia comentário 
-;; 	(modify-syntax-entry ?/ ". 124b" t2t-mode-syntax-table)
-;; 	(modify-syntax-entry ?* ". 23" t2t-mode-syntax-table)
-;; 	(modify-syntax-entry ?\n "> b" t2t-mode-syntax-table))
+    ;; The first modification we make to the syntax table is to declare the 
+    ;; underscore character '_' as being a valid part of a word. 
+    ;; So now, a string like foo_bar will be treated as one word rather than two 
+    ;; (the default Emacs behavior). 
+    
+    (modify-syntax-entry ?_ "w" t2t-mode-syntax-table))
+  
   
   (set-syntax-table t2t-mode-syntax-table))
 
 
 ;; Here we define our entry function, give it a documentation string, make it interactive,
 ;;  and call our syntax table creation function.
-
-
-
-
-;; menu
-
-;; Nota: é NECESSARIO TER O t2t-mode-map definido como não nil para que funcione o menu
-
-(defvar t2t-mode-map () "Keymap used in t2t-mode buffers.")
-
-(when (not t2t-mode-map)
-  (setq t2t-mode-map (make-sparse-keymap))
-  (define-key t2t-mode-map [(control ?c) (control ?t) (control ?t)] 't2t-insert-normal-title)
-  (define-key t2t-mode-map [(control ?c) (control ?t) (control ?n)] 't2t-insert-numbered-title)
-  (define-key t2t-mode-map [(control ?c) (control ?f) (control ?b)] 't2t-insert-bold-face)
-  (define-key t2t-mode-map [(control ?c) (control ?f) (control ?i)] 't2t-insert-italic-face)
-  (define-key t2t-mode-map [(control ?c) (control ?f) (control ?u)] 't2t-insert-underlined-face)
-  (define-key t2t-mode-map [(control ?c) (control ?f) (control ?m)] 't2t-insert-monospace-face)
-  (define-key t2t-mode-map [(control ?c) (control ?b) (control ?c)] 't2t-insert-citation)
-  (define-key t2t-mode-map [(control ?c) (control ?b) (control ?d)] 't2t-insert-definition-list)
-  (define-key t2t-mode-map [(control ?c) (control ?b) (control ?l)] 't2t-insert-unumbered-list)
-  (define-key t2t-mode-map [(control ?c) (control ?b) (control ?n)] 't2t-insert-numbered-list)
-  (define-key t2t-mode-map [(control ?c) (control ?f) (control ?l)] 't2t-insert-formated-line)
-  (define-key t2t-mode-map [(control ?c) (control ?f) (control ?a)] 't2t-insert-formated-area)
-  (define-key t2t-mode-map [(control ?c) (control ?p) (control ?l)] 't2t-insert-protected-line)
-  (define-key t2t-mode-map [(control ?c) (control ?p) (control ?a)] 't2t-insert-protected-area)
-  (define-key t2t-mode-map [(control ?c) (control ?p) (control ?t)] 't2t-insert-protected-text)
-  (define-key t2t-mode-map [(control ?c) (control ?o) (control ?s)] 't2t-insert-separation-line)
-  (define-key t2t-mode-map [(control ?c) (control ?o) (control ?d)] 't2t-insert-emphasize-line)
-  (define-key t2t-mode-map [(control ?c) (control ?l)]              't2t-insert-link)
-  (define-key t2t-mode-map [(control ?c) (control ?i)]              't2t-insert-image)
-  (define-key t2t-mode-map [(control ?c) (control ?d)]              't2t-insert-date)
-  (define-key t2t-mode-map [(control ?c) (control ?c)]              't2t-insert-comments)
-)
-
-
-;; esse if é responsável por verificar a linguagem do sistema
-
-(if (string= (getenv "LANG") "pt_BR")
-;; ok, the user is using pt_BR language
-(easy-menu-define t2t-mode-menu t2t-mode-map
-  "'Txt2Tags-mode' menu"
-  '("T2T"
-    ("Título" 
-     ["Normal"       (t2t-insert-normal-title)      :keys "C-c C-t C-t"]
-     ["Numerado"     (t2t-insert-numbered-title)    :keys "C-c C-t C-n"]
-     )
-    ("Embelezadores"
-     ["Negrito"      (t2t-insert-bold-face)         :keys "C-c C-f C-b"]
-     ["Itálico"      (t2t-insert-italic-face)       :keys "C-c C-f C-i"]
-
-     ["Sublinhado"   (t2t-insert-underlined-face)   :keys "C-c C-f C-u"]
-     ["Monoespaçado" (t2t-insert-monospace-face)    :keys "C-c C-f C-m"]
-     ;; (progn (save-excursion (goto-char (mark)) (insert "''")) (insert "''"))
-     )
-    ("Blocos de Texto"
-     ["Citação"             (t2t-insert-citation)        :keys "C-c C-b C-c"]
-     ["Lista"               (t2t-insert-unumbered-list)  :keys "C-c C-b C-l"]
-     ["Lista Numerada"      (t2t-insert-numbered-list)   :keys "C-c C-b C-n"]
-     ["Lista de Definição"  (t2t-insert-definition-list) :keys "C-c C-b C-d"]
-     )
-    ("Texto Formatado"
-     ["Linha Formatada"     (t2t-insert-formated-line)   :keys "C-c C-f C-l"]
-     ["Área Formatada"      (t2t-insert-formated-area)   :keys "C-c C-f C-a"]
-     )
-    ("Texto Protegido"
-     ["Linha Protegida"     (t2t-insert-protected-line) :keys "C-c C-p C-l"]
-     ;; (progn (save-excursion (goto-char (mark)) (beginning-of-line)) (insert "\n\"\"\" ")) 
-     ["Área Protegida"      (t2t-insert-protected-area) :keys "C-c C-p C-a"]
-     ;; (progn (save-excursion (goto-char (mark)) (insert "\n\"\"\"\n")) (insert "\n\"\"\"\n")) 
-     ["Texto Protegido"     (t2t-insert-protected-text) :keys "C-c C-p C-t"]
-     ;; (progn (save-excursion (goto-char (mark)) (insert "\"\"")) (insert "\"\"")) 
-     ;;      ["Tabela" 
-     ;;       () t]
-     )
-    ("Outros"
-     ["Linha de Separação"   (t2t-insert-separation-line) :keys "C-c C-o C-s"]
-     ;; (progn (save-excursion (goto-char (mark)) (beginning-of-line)) (insert "\n----------------------")) 
-     ["Linha Destacada"      (t2t-insert-emphasize-line)  :keys "C-c C-o C-d"]
-     ;; (progn (save-excursion (goto-char (mark)) (beginning-of-line)) (insert "\n======================"))
-     )
-    ("--")
-	["Links"                (t2t-insert-link)            :keys "C-c C-l"]
-	["Imagem"               (t2t-insert-image)           :keys "C-c C-i"]
-	["Data Atual"           (t2t-insert-date)            :keys "C-c C-d"]
-    ["Comentário"           (t2t-insert-comments)        :keys "C-c C-c"]
-    ;;     (progn (save-excursion (goto-char (mark)) (beginning-of-line) (insert ?% " ")))
-    )
-  )
-;; other language; try english as default
-(easy-menu-define t2t-mode-menu t2t-mode-map
-  "'Txt2Tags-mode' menu"
-  '("T2T"
-    ("Title" 
-     ["Ununmbered"       (t2t-insert-normal-title)      :keys "C-c C-t C-t"]
-     ["Numbered"     (t2t-insert-numbered-title)    :keys "C-c C-t C-n"]
-     )
-    ("Font Beautifiers"
-     ["Bold"      (t2t-insert-bold-face)         :keys "C-c C-f C-b"]
-     ["Italic"      (t2t-insert-italic-face)       :keys "C-c C-f C-i"]
-
-     ["Underline"   (t2t-insert-underlined-face)   :keys "C-c C-f C-u"]
-     ["Monospaced" (t2t-insert-monospace-face)    :keys "C-c C-f C-m"]
-     ;; (progn (save-excursion (goto-char (mark)) (insert "''")) (insert "''"))
-     )
-    ("Text Blocks"
-     ["Citation"             (t2t-insert-citation)        :keys "C-c C-b C-c"]
-     ["List"               (t2t-insert-unumbered-list)  :keys "C-c C-b C-l"]
-     ["Numbered List"      (t2t-insert-numbered-list)   :keys "C-c C-b C-n"]
-     ["Definition List"  (t2t-insert-definition-list) :keys "C-c C-b C-d"]
-     )
-    ("Verbatim"
-     ["Verbatim Line"     (t2t-insert-formated-line)   :keys "C-c C-f C-l"]
-     ["Verbatim Area"      (t2t-insert-formated-area)   :keys "C-c C-f C-a"]
-     )
-    ("RAW"
-     ["Raw line"     (t2t-insert-protected-line) :keys "C-c C-p C-l"]
-     ;; (progn (save-excursion (goto-char (mark)) (beginning-of-line)) (insert "\n\"\"\" ")) 
-     ["Raw area"      (t2t-insert-protected-area) :keys "C-c C-p C-a"]
-     ;; (progn (save-excursion (goto-char (mark)) (insert "\n\"\"\"\n")) (insert "\n\"\"\"\n")) 
-     ["RAW Text"     (t2t-insert-protected-text) :keys "C-c C-p C-t"]
-     ;; (progn (save-excursion (goto-char (mark)) (insert "\"\"")) (insert "\"\"")) 
-     ;;      ["Tabela" 
-     ;;       () t]
-     )
-    ("Others"
-     ["Horizontal Separator Line"   (t2t-insert-separation-line) :keys "C-c C-o C-s"]
-     ;; (progn (save-excursion (goto-char (mark)) (beginning-of-line)) (insert "\n----------------------")) 
-     ["Horizontal Bold Line"      (t2t-insert-emphasize-line)  :keys "C-c C-o C-d"]
-     ;; (progn (save-excursion (goto-char (mark)) (beginning-of-line)) (insert "\n======================"))
-     )
-    ("--")
-	["Links"              (t2t-insert-link)            :keys "C-c C-l"]
-	["Image"              (t2t-insert-image)           :keys "C-c C-i"]
-	["Date"               (t2t-insert-date)            :keys "C-c C-d"]
-    ["Comments"           (t2t-insert-comments)        :keys "C-c C-c"]
-    ;;     (progn (save-excursion (goto-char (mark)) (beginning-of-line) (insert ?% " ")))
-    )
-  )
-
-) ;; ends if language   
-
-
-
-
-;; titles
-
-(defun t2t-insert-normal-title ()
-  (interactive)
-  (save-excursion (goto-char (point)) (beginning-of-line)
-		  (insert "\n= "))
-  (end-of-line)
-  (insert " ="))
-
-
-(defun t2t-insert-numbered-title ()
-  (interactive)
-  (save-excursion (goto-char (point)) (beginning-of-line)
-		  (insert "\n+ "))
-  (end-of-line)
-  (insert " +"))
-
-;; faces
-
-(defun t2t-insert-bold-face ()
-  (interactive)
-  (save-excursion (goto-char (region-beginning))
-		  (insert "**"))
-  (insert "**"))
-
-
-(defun t2t-insert-italic-face ()
-  (interactive)
-  (save-excursion (goto-char (region-beginning))
-		  (insert "//"))
-  (insert "//"))
-
-
-(defun t2t-insert-underlined-face ()
-  (interactive)
-  (save-excursion (goto-char (region-beginning))
-		  (insert "__"))
-  (insert "__"))
-
-(defun t2t-insert-monospace-face ()
-  (interactive)
-  (save-excursion (goto-char (region-beginning))
-		  (insert "''"))
-  (insert "''"))
-
-;; lists
-
-(defun t2t-insert-citation ()
-  (interactive)
-  (setq citat (read-string "Texto: "))
-  (unless (equal citat "")
-  (insert (format "\n\t" citat ))))
-
-(defun t2t-insert-definition-list ()
-  (interactive)
-  (setq descr (read-string "Item: "))
-  (unless (equal descr "")
-  (insert (format "\n : %s \n" descr ))))
-
-
-(defun t2t-insert-unumbered-list ()
-  (interactive)
-  (setq unumberedlist (read-string "Item: "))
-  (unless (equal unumberedlist "")
-    (insert (format "\n - %s" unumberedlist))))
-
-
-(defun t2t-insert-numbered-list ()
-  (interactive)
-  (setq numberedlist (read-string "Item: "))
-  (unless (equal numberedlist "")
-    (insert (format "\n + %s" numberedlist))))
-
-
-;; Texto formatado
-(defun t2t-insert-formated-line ()
-  (interactive)
-  (save-excursion (goto-char (region-beginning)) (end-of-line)) (insert "\n''' "))
-
-
-(defun t2t-insert-formated-area ()
-  (interactive)
-  (save-excursion (goto-char (region-beginning)) (insert "\n'''\n")) (insert "\n'''\n"))
-
-
-
-;; texto protegido
-
-(defun t2t-insert-protected-line ()
-  (interactive)
-  (save-excursion (goto-char (region-beginning)) (beginning-of-line) (insert "\"\"\" ")))
-
-(defun t2t-insert-protected-area ()
-  (interactive)
-  (save-excursion (goto-char (region-beginning)) (insert "\n\"\"\"\n"))
-  (insert "\n\"\"\"\n"))
-
-(defun t2t-insert-protected-text ()
-  (interactive)
-  (save-excursion (goto-char (region-beginning)) (insert "\"\"")) (insert "\"\""))
-
-
-
-(defun t2t-insert-separation-line ()
-  (interactive)
-  (save-excursion 
-    (goto-line (point)) 
-    (end-of-line) 
-    (insert "\n----------------------")))
-
-
-(defun t2t-insert-emphasize-line ()
-  (interactive)
-  (save-excursion 
-    (goto-line (point)) 
-    (end-of-line) 
-    (insert "\n======================")))
-
-
-(defun t2t-insert-link ()
-  (interactive)
-  (setq linkname (read-string "Nome: "))
-  (unless (equal linkname "")
-    (setq urllink (read-string "Link: "))
-    (unless (equal urllink "")
-    (insert (format "[%s %s]" linkname urllink)))))
-
-(defun t2t-insert-image ()
-  (interactive)
-  (setq fileplusextension (read-string "Arquivo.Ext: "))
-  (unless (equal fileplusextension "")
-    (insert (format "[%s]" fileplusextension))))
-
-
-(defun t2t-insert-date ()
-  (interactive)
-  (save-excursion (goto-char (point)) (beginning-of-line) (insert ?% ?% "date\(\)")))
-
-
-(defun t2t-insert-comments ()
-  (interactive)
-  (save-excursion (goto-char (point)) (beginning-of-line) (insert ?% " ")))
 
 (defun t2t-mode ()
   "Major mode for editing Txt2Tags files"
@@ -703,14 +396,9 @@
   (setq font-lock-defaults
 		'(t2t-font-lock-keywords))
 
-;; faz com que o final de linha seja mostrado em vermelho
-
-  (add-hook 't2t-mode-hook
-	    (lambda ()
-	      (set (make-local-variable 'show-trailing-whitespace)
-			   t )))
 
 ;; Muda a variável compile-command para txt2tags arquivo.t2t
+
   (add-hook 't2t-mode-hook
 	    (lambda ()
 	      (set (make-local-variable 'compile-command)
@@ -718,14 +406,17 @@
 		     (concat t2t-program " -t " t2t-default-target " " file)))))
   
 ;; Ativa por padrão o syntax higlight
+
   (add-hook 't2t-mode-hook 'turn-on-font-lock)
-;; ativa o mapa e menu
-  (use-local-map t2t-mode-map)
-  (easy-menu-add t2t-mode-menu)
-;; major-mode
+
+
   (setq major-mode 't2t-mode)
   (setq mode-name "T2T")
   (run-hooks 't2t-mode-hook))
-(setq indent-tab-mode 'tab)
+
 (provide 't2t-mode)
 
+;; Kenzo
+(setq indent-tabs-mode 'tab)
+(setq tab-width 2)
+(setq fill-column 72)
