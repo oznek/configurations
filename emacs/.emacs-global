@@ -68,7 +68,8 @@
 			      (if (boundp 'auto-mode-alist) auto-mode-alist)
 			      ))
 (autoload  't2t-mode "txt2tags-mode" "Txt2tags Mode" t)
-(column-number-mode)
+(column-number-mode 1)
+(size-indication-mode 1)
 
 ;; Detect indent - Para alguns modos: C/C++, Shell Script, perl, etc.
 (add-to-list 'load-path "~/.emacs.d/plugins/dtrt-indent")
@@ -89,7 +90,9 @@
 ;;
 ;; In every buffer, the line which contains the cursor will be fully
 ;; highlighted
-					;(global-hl-line-mode 1)
+(global-hl-line-mode 1)
+(set-face-background 'hl-line "#440")  ;; Emacs 22+ 
+;(set-face-background 'highlight "#330")  ;; Emacs 21
 
 ;; ========== Set the fill column ==========
 (setq-default fill-column 72)
@@ -285,3 +288,19 @@
 (add-to-list 'auto-mode-alist
              '("\\.markdown$" . markdown-mode))
 
+;; ========== Line by line scrolling ==========
+
+;; This makes the buffer scroll by only a single line when the up or
+;; down cursor keys push the cursor (tool-bar-mode) outside the
+;; buffer. The standard emacs behaviour is to reposition the cursor in
+;; the center of the screen, but this can make the scrolling confusing
+
+(setq scroll-step 1)
+
+;; orgmode (http://orgmode.org)
+(add-to-list 'load-path "~/.emacs.d/plugins/org-6.36c/lisp")
+(add-to-list 'load-path "~/.emacs.d/plugins/org-6.36c/contrib/lisp")
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cb" 'org-iswitchb)
+(transient-mark-mode 1)
