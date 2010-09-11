@@ -304,3 +304,7 @@
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cb" 'org-iswitchb)
 (transient-mark-mode 1)
+
+
+;; left line numbers
+(add-hook 'find-file-hook (lambda () (linum-mode 1)))

@@ -63,3 +63,8 @@ colorscheme evening
 " http://www.vim.org/scripts/script.php?script_id=1984
 " Use :FufBuffer, :FufFile, etc
 
+" Toggle Line number (Ctrl+N Ctrl+N)
+" http://vim.wikia.com/wiki/Display_line_numbers
+nmap <C-N><C-N> :set invnumber<CR>
+set numberwidth=3
+highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE gui=NONE guifg=DarkGrey guibg=NONE
