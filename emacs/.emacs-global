@@ -77,7 +77,8 @@
 (dtrt-indent-mode 1)
 
 ;; Color Theme
-(load-library "color-theme")
+(require 'color-theme)
+(color-theme-initialize)
 (color-theme-charcoal-black)
 
 ;; Errr.. can't remember
